@@ -4,7 +4,7 @@ public class OozieRunnerConstants {
     public static final String OOZIE_SERVICE_URI = "oozieServiceURI";
 
     public static final String HDFS_URI = "nameNode";
-    public static final String HDFS_WF_WORKING_DIR = "hdfsWfWorkingDir";
+    public static final String HDFS_WORKING_DIR_URI = "hdfsWorkingDirURI";
     public static final String HDFS_USER_NAME = "hdfsUserName";
     public static final String HDFS_DIR_INPUT_DATA = "hdfsDirInputData";
     public static final String HDFS_DIR_OUTPUT_DATA = "hdfsDirOutputData";

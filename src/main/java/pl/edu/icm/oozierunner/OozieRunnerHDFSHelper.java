@@ -14,7 +14,7 @@ import org.apache.hadoop.fs.Path;
 public class OozieRunnerHDFSHelper {
 
     protected URI hdfsURI;
-    protected String hdfsWfWorkingDir;
+    protected String hdfsWorkingDirURI;
     protected String hdfsUserName;
     protected FileSystem hdfsFS;
     protected String localDirInputData;
@@ -35,10 +35,10 @@ public class OozieRunnerHDFSHelper {
             throw new OozieRunnerException("HDFS URI cannot be parsed.", e);
         }
 
-        hdfsWfWorkingDir = wfProperties.getProperty(OozieRunnerConstants.HDFS_WF_WORKING_DIR);
-        if (hdfsWfWorkingDir == null) {
+        hdfsWorkingDirURI = wfProperties.getProperty(OozieRunnerConstants.HDFS_WORKING_DIR_URI);
+        if (hdfsWorkingDirURI == null) {
             throw new OozieRunnerException("Property "
-                    + OozieRunnerConstants.HDFS_WF_WORKING_DIR
+                    + OozieRunnerConstants.HDFS_WORKING_DIR_URI
                     + " cannot be empty.");
         }
 
@@ -63,10 +63,7 @@ public class OozieRunnerHDFSHelper {
 
             String localAbsolutePath = new File(localDirInputData).getAbsolutePath();
             Path localPath = new Path(localAbsolutePath);
-            Path hdfsPath = new Path(hdfsWfWorkingDir + hdfsDirInputData);
-
-            //System.out.println("=-=-=-=-=-=- local path: " + localPath);
-            //System.out.println("=-=-=-=-=-=- hdfs path: " + hdfsPath);
+            Path hdfsPath = new Path(hdfsWorkingDirURI + hdfsDirInputData);
 
             hdfsFS.copyFromLocalFile(localPath, hdfsPath);
 
@@ -79,11 +76,8 @@ public class OozieRunnerHDFSHelper {
             File outputDir = Files.createTempDir();
             outputDir.deleteOnExit();
 
-            Path hdfsPath = new Path(hdfsWfWorkingDir + hdfsDirOutputData);
+            Path hdfsPath = new Path(hdfsWorkingDirURI + hdfsDirOutputData);
             Path localPath = new Path(outputDir.getAbsolutePath());
-
-            System.out.println("=-=-=-=-=-=- hdfs path: " + hdfsPath);
-            System.out.println("=-=-=-=-=-=- local path: " + localPath);
 
             hdfsFS.copyToLocalFile(hdfsPath, localPath);
 

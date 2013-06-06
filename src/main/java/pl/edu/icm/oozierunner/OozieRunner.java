@@ -35,11 +35,8 @@ public class OozieRunner {
         addPropertiesFromFile(localProperties, itEnvPropertiesLocation);
         resolvePlaceholders(localProperties);
 
-        String appPath = localProperties.getProperty(OozieRunnerConstants.HDFS_URI) + "/" +
-                localProperties.getProperty(OozieRunnerConstants.HDFS_WF_WORKING_DIR) + "/" +
+        String appPath = localProperties.getProperty(OozieRunnerConstants.HDFS_WORKING_DIR_URI) + "/" +
                 localProperties.getProperty(OozieRunnerConstants.WORKFLOW_DIR);
-        appPath = appPath.replaceAll("/+", "/");
-        appPath = appPath.replaceFirst(":/", "://");
         localProperties.setProperty(OozieClient.APP_PATH, appPath);
 
         oozie = new OozieClient(localProperties.getProperty(OozieRunnerConstants.OOZIE_SERVICE_URI));
