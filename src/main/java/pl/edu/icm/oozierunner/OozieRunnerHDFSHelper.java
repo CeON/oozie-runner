@@ -1,0 +1,97 @@
+package pl.edu.icm.oozierunner;
+
+import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class OozieRunnerHDFSHelper {
+
+    protected URI hdfsURI;
+    protected String hdfsWfWorkingDir;
+    protected String hdfsUserName;
+    protected FileSystem hdfsFS;
+    protected String localDirInputData;
+    protected String hdfsDirInputData;
+    protected String hdfsDirOutputData;
+
+    public OozieRunnerHDFSHelper(Properties wfProperties) {
+
+        hdfsUserName = wfProperties.getProperty(OozieRunnerConstants.HDFS_USER_NAME);
+        if (hdfsUserName != null) {
+            System.setProperty("HADOOP_USER_NAME", hdfsUserName);
+        }
+
+        String hdfsURIName = wfProperties.getProperty(OozieRunnerConstants.HDFS_URI);
+        try {
+            hdfsURI = new URI(hdfsURIName);
+        } catch (URISyntaxException e) {
+            throw new OozieRunnerException("HDFS URI cannot be parsed.", e);
+        }
+
+        hdfsWfWorkingDir = wfProperties.getProperty(OozieRunnerConstants.HDFS_WF_WORKING_DIR);
+        if (hdfsWfWorkingDir == null) {
+            throw new OozieRunnerException("Property "
+                    + OozieRunnerConstants.HDFS_WF_WORKING_DIR
+                    + " cannot be empty.");
+        }
+
+        localDirInputData = wfProperties.getProperty(OozieRunnerConstants.LOCAL_DIR_INPUT_DATA);
+        hdfsDirInputData = wfProperties.getProperty(OozieRunnerConstants.HDFS_DIR_INPUT_DATA);
+        hdfsDirOutputData = wfProperties.getProperty(OozieRunnerConstants.HDFS_DIR_OUTPUT_DATA);
+
+        Configuration hdfsFSconf = new Configuration();
+        hdfsFSconf.set("fs.hdfs.impl",
+                "org.apache.hadoop.hdfs.DistributedFileSystem");
+        try {
+            hdfsFS = FileSystem.get(hdfsURI, hdfsFSconf);
+        } catch (IOException e) {
+            throw new OozieRunnerException("HDFS FileSystem with URI "
+                    + hdfsURI.toString() + " failed to be created.", e);
+        }
+
+    }
+
+    public void copyInputFiles() throws IOException {
+        if (localDirInputData != null && hdfsDirInputData != null) {
+
+            String localAbsolutePath = new File(localDirInputData).getAbsolutePath();
+            Path localPath = new Path(localAbsolutePath);
+            Path hdfsPath = new Path(hdfsWfWorkingDir + hdfsDirInputData);
+
+            //System.out.println("=-=-=-=-=-=- local path: " + localPath);
+            //System.out.println("=-=-=-=-=-=- hdfs path: " + hdfsPath);
+
+            hdfsFS.copyFromLocalFile(localPath, hdfsPath);
+
+        }
+    }
+
+    public File getOutputFiles() throws IOException {
+        if (hdfsDirOutputData != null) {
+
+            File outputDir = Files.createTempDir();
+            outputDir.deleteOnExit();
+
+            Path hdfsPath = new Path(hdfsWfWorkingDir + hdfsDirOutputData);
+            Path localPath = new Path(outputDir.getAbsolutePath());
+
+            System.out.println("=-=-=-=-=-=- hdfs path: " + hdfsPath);
+            System.out.println("=-=-=-=-=-=- local path: " + localPath);
+
+            hdfsFS.copyToLocalFile(hdfsPath, localPath);
+
+            System.out.println("    output directory: " + outputDir.getAbsolutePath());
+            return outputDir;
+
+        } else {
+            return null;
+        }
+    }
+}
