@@ -29,6 +29,9 @@ public class OozieRunnerHDFSHelper {
         }
 
         String hdfsURIName = wfProperties.getProperty(OozieRunnerConstants.HDFS_URI);
+        if (! hdfsURIName.startsWith("hdfs://")) {
+            hdfsURIName = "hdfs://" + hdfsURIName;
+        }
         try {
             hdfsURI = new URI(hdfsURIName);
         } catch (URISyntaxException e) {
@@ -63,7 +66,7 @@ public class OozieRunnerHDFSHelper {
 
             String localAbsolutePath = new File(localDirInputData).getAbsolutePath();
             Path localPath = new Path(localAbsolutePath);
-            Path hdfsPath = new Path(hdfsWorkingDirURI + hdfsDirInputData);
+            Path hdfsPath = new Path(hdfsDirInputData);
 
             hdfsFS.copyFromLocalFile(localPath, hdfsPath);
 
@@ -76,7 +79,7 @@ public class OozieRunnerHDFSHelper {
             File outputDir = Files.createTempDir();
             outputDir.deleteOnExit();
 
-            Path hdfsPath = new Path(hdfsWorkingDirURI + hdfsDirOutputData);
+            Path hdfsPath = new Path(hdfsDirOutputData);
             Path localPath = new Path(outputDir.getAbsolutePath());
 
             hdfsFS.copyToLocalFile(hdfsPath, localPath);
