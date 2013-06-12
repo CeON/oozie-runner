@@ -39,7 +39,11 @@ public class OozieRunner {
                 localProperties.getProperty(OozieRunnerConstants.WORKFLOW_DIR);
         localProperties.setProperty(OozieClient.APP_PATH, appPath);
 
-        oozie = new OozieClient(localProperties.getProperty(OozieRunnerConstants.OOZIE_SERVICE_URI));
+        oozieServiceURI = localProperties.getProperty(OozieRunnerConstants.OOZIE_SERVICE_URI);
+        if (oozieServiceURI == null || oozieServiceURI.isEmpty()) {
+            throw new OozieRunnerException(OozieRunnerConstants.OOZIE_SERVICE_URI + " cannot be empty");
+        }
+        oozie = new OozieClient(oozieServiceURI);
         wfProperties = oozie.createConfiguration();
         wfProperties.putAll(localProperties);
     }
