@@ -39,11 +39,6 @@ public class OozieRunnerHDFSHelper {
         }
 
         hdfsWorkingDirURI = wfProperties.getProperty(OozieRunnerConstants.HDFS_WORKING_DIR_URI);
-        if (hdfsWorkingDirURI == null) {
-            throw new OozieRunnerException("Property "
-                    + OozieRunnerConstants.HDFS_WORKING_DIR_URI
-                    + " cannot be empty.");
-        }
 
         localDirInputData = wfProperties.getProperty(OozieRunnerConstants.LOCAL_DIR_INPUT_DATA);
         hdfsDirInputData = wfProperties.getProperty(OozieRunnerConstants.HDFS_DIR_INPUT_DATA);

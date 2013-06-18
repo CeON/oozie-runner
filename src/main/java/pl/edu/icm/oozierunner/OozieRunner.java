@@ -2,15 +2,29 @@ package pl.edu.icm.oozierunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.client.WorkflowJob.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.PropertyPlaceholderHelper;
 
 public class OozieRunner {
+
+    public static final Logger logger = LoggerFactory.getLogger(OozieRunner.class);
+
+    public static List<String> obligatoryProperties = Arrays.asList(
+            OozieRunnerConstants.HDFS_URI,
+            OozieRunnerConstants.OOZIE_SERVICE_URI,
+            OozieRunnerConstants.HDFS_WORKING_DIR_URI,
+            OozieRunnerConstants.WORKFLOW_DIR
+            );
 
     protected String oozieServiceURI;
     protected Properties wfProperties;
@@ -34,6 +48,8 @@ public class OozieRunner {
         localProperties = loadProperties(propertiesFileLocations);
         addPropertiesFromFile(localProperties, itEnvPropertiesLocation);
         resolvePlaceholders(localProperties);
+
+        checkProperties(localProperties);
 
         String appPath = localProperties.getProperty(OozieRunnerConstants.HDFS_WORKING_DIR_URI) + "/" +
                 localProperties.getProperty(OozieRunnerConstants.WORKFLOW_DIR);
@@ -67,8 +83,8 @@ public class OozieRunner {
             }
 
             // print the final status o the workflow job
-            //logger.info("Workflow job completed ...");
-            //logger.info(wc.getJobInfo(jobId).toString());
+            logger.info("Workflow job completed ...");
+            logger.info(oozie.getJobInfo(jobId).toString());
 
             status = oozie.getJobInfo(jobId).getStatus();
 
@@ -94,10 +110,22 @@ public class OozieRunner {
         return properties;
     }
 
+    protected void checkProperties(Properties properties) {
+        for (String property : obligatoryProperties) {
+            if (!properties.containsKey(property) || properties.getProperty(property).isEmpty()) {
+                throw new OozieRunnerException("Property " + property + " must be set");
+            }
+        }
+    }
+
     protected void addPropertiesFromFile(Properties properties,
             String propertiesFileLocation) throws IOException {
         Properties propertiesTmp = new Properties();
-        propertiesTmp.load(this.getClass().getClassLoader().getResourceAsStream(propertiesFileLocation));
+        InputStream resource = this.getClass().getClassLoader().getResourceAsStream(propertiesFileLocation);
+        if (resource == null) {
+            logger.warn("Cannot open properties file " + propertiesFileLocation);
+        }
+        propertiesTmp.load(resource);
         for (String key : propertiesTmp.stringPropertyNames()) {
             properties.setProperty(key, propertiesTmp.getProperty(key));
         }
