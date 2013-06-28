@@ -57,9 +57,6 @@ public class OozieRunner {
                 localProperties.getProperty(OozieRunnerConstants.WORKFLOW_DIR);
         localProperties.setProperty(OozieClient.APP_PATH, appPath);
 
-        userName = wfProperties.getProperty(OozieRunnerConstants.HDFS_USER_NAME);
-        localProperties.setProperty(OozieRunnerConstants.SYSTEM_USER_NAME, userName);
-
         oozieServiceURI = localProperties.getProperty(OozieRunnerConstants.OOZIE_SERVICE_URI);
         if (oozieServiceURI == null || oozieServiceURI.isEmpty()) {
             throw new OozieRunnerException(OozieRunnerConstants.OOZIE_SERVICE_URI + " cannot be empty");
@@ -68,6 +65,8 @@ public class OozieRunner {
         wfProperties = oozie.createConfiguration();
         wfProperties.putAll(localProperties);
 
+        userName = wfProperties.getProperty(OozieRunnerConstants.HDFS_USER_NAME);
+        wfProperties.setProperty(OozieRunnerConstants.SYSTEM_USER_NAME, userName);
     }
 
     public File run() throws IOException {
