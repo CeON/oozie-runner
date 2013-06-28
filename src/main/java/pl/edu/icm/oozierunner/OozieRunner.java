@@ -17,16 +17,18 @@ import org.springframework.util.PropertyPlaceholderHelper;
 
 public class OozieRunner {
 
-    public static final Logger logger = LoggerFactory.getLogger(OozieRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(OozieRunner.class);
 
     public static List<String> obligatoryProperties = Arrays.asList(
             OozieRunnerConstants.HDFS_URI,
             OozieRunnerConstants.OOZIE_SERVICE_URI,
             OozieRunnerConstants.HDFS_WORKING_DIR_URI,
-            OozieRunnerConstants.WORKFLOW_DIR
+            OozieRunnerConstants.WORKFLOW_DIR,
+            OozieRunnerConstants.HDFS_USER_NAME
             );
 
     protected String oozieServiceURI;
+    protected String userName;
     protected Properties wfProperties;
     protected String envIT;
     protected OozieClient oozie;
@@ -55,6 +57,9 @@ public class OozieRunner {
                 localProperties.getProperty(OozieRunnerConstants.WORKFLOW_DIR);
         localProperties.setProperty(OozieClient.APP_PATH, appPath);
 
+        userName = wfProperties.getProperty(OozieRunnerConstants.HDFS_USER_NAME);
+        localProperties.setProperty(OozieRunnerConstants.SYSTEM_USER_NAME, userName);
+
         oozieServiceURI = localProperties.getProperty(OozieRunnerConstants.OOZIE_SERVICE_URI);
         if (oozieServiceURI == null || oozieServiceURI.isEmpty()) {
             throw new OozieRunnerException(OozieRunnerConstants.OOZIE_SERVICE_URI + " cannot be empty");
@@ -62,11 +67,14 @@ public class OozieRunner {
         oozie = new OozieClient(oozieServiceURI);
         wfProperties = oozie.createConfiguration();
         wfProperties.putAll(localProperties);
+
     }
 
     public File run() throws IOException {
-        OozieRunnerHDFSHelper hdfsHelper = new OozieRunnerHDFSHelper(wfProperties);
+        OozieRunnerIO hdfsHelper = new OozieRunnerIO(wfProperties, userName);
+
         hdfsHelper.copyInputFiles();
+
         for (String propertyKey : wfProperties.stringPropertyNames()) {
             System.out.println(propertyKey + "="
                     + wfProperties.getProperty(propertyKey));

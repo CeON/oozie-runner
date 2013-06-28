@@ -6,6 +6,7 @@ public class OozieRunnerConstants {
     public static final String HDFS_URI = "nameNode";
     public static final String HDFS_WORKING_DIR_URI = "hdfsWorkingDirURI";
     public static final String HDFS_USER_NAME = "hdfsUserName";
+    public static final String SYSTEM_USER_NAME = "user.name";
     public static final String HDFS_DIR_INPUT_DATA = "hdfsDirInputData";
     public static final String HDFS_DIR_OUTPUT_DATA = "hdfsDirOutputData";
     public static final String LOCAL_DIR_INPUT_DATA = "localDirInputData";
