@@ -3,7 +3,7 @@
 	<groupId>pl.edu.icm.oozie</groupId>
 	<artifactId>oozie-runner</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3-SNAPSHOT</version>
+	<version>1.3</version>
 	<name>oozie-runner</name>
 	<url>http://maven.apache.org</url>
 
