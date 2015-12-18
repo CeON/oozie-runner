@@ -3,7 +3,7 @@
     <groupId>pl.edu.icm.oozie</groupId>
     <artifactId>oozie-runner</artifactId>
     <packaging>jar</packaging>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <name>oozie-runner</name>
     <url>http://maven.apache.org</url>
 
@@ -11,7 +11,8 @@
         <connection>scm:git:ssh://git@github.com/CeON/oozie-runner.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/CeON/oozie-runner.git</developerConnection>
         <url>https://github.com/CeON/oozie-runner</url>
-    </scm>
+      <tag>oozie-runner-1.4</tag>
+  </scm>
 
     <distributionManagement>
         <repository>
